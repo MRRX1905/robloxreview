@@ -17,6 +17,8 @@ import {
   Send,
   Trash2,
   Tv,
+  Key,
+  ExternalLink,
 } from 'lucide-react';
 import { QueueItem, QueueTier, TTSConfig } from '../types';
 import { extractRobloxUsername } from '../utils/robloxParser';
@@ -27,7 +29,7 @@ interface StreamerControlPanelProps {
   isConnected: boolean;
   isConnecting?: boolean;
   connectionNotice?: string;
-  onToggleConnect: () => void;
+  onToggleConnect: (signApiKey?: string) => void;
   queue: QueueItem[];
   currentQueueItem: QueueItem | null;
   onNextQueue: () => void;
@@ -77,6 +79,8 @@ export const StreamerControlPanel: React.FC<StreamerControlPanelProps> = ({
   const [commentInput, setCommentInput] = useState('mrafiumri');
   const [commenterName, setCommenterName] = useState('penonton_tiktok');
   const [tempTiktok, setTempTiktok] = useState(tiktokUsername);
+  const [signApiKey, setSignApiKey] = useState('');
+  const [showAdvancedConnector, setShowAdvancedConnector] = useState(false);
 
   const handleSimulateChat = (e: React.FormEvent) => {
     e.preventDefault();
@@ -104,7 +108,19 @@ export const StreamerControlPanel: React.FC<StreamerControlPanelProps> = ({
               <Radio className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="font-bold text-sm text-white">Streamer Studio Control</h2>
+              <div className="flex items-center gap-1.5">
+                <h2 className="font-bold text-sm text-white">Streamer Studio Control</h2>
+                <a
+                  href="https://github.com/zerodytrash/TikTok-Live-Connector"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-0.5 bg-black/60 hover:bg-black/90 text-zinc-300 hover:text-white px-1.5 py-0.2 rounded text-[9px] border border-white/10 transition"
+                  title="Powered by zerodytrash/TikTok-Live-Connector"
+                >
+                  <span>TikTok-Live-Connector</span>
+                  <ExternalLink className="w-2.5 h-2.5" />
+                </a>
+              </div>
               <p className="text-[11px] text-slate-400">Review Roblox Otomatis Real-time</p>
             </div>
           </div>
@@ -131,12 +147,12 @@ export const StreamerControlPanel: React.FC<StreamerControlPanelProps> = ({
           </div>
         </div>
 
-        {/* TIKTOK LIVE CONNECTION BAR (REAL-TIME SINKRONISASI DATA) */}
+        {/* TIKTOK LIVE CONNECTION BAR (POWERED BY zerodytrash/TikTok-Live-Connector) */}
         <div className="bg-slate-900/90 p-3 rounded-xl border border-slate-800 flex flex-col gap-2">
           <div className="flex items-center justify-between text-xs font-semibold">
             <span className="text-slate-300 flex items-center gap-1.5">
               <span className={`w-2.5 h-2.5 rounded-full ${isConnected ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
-              Koneksi TikTok Live:
+              TikTok-Live-Connector:
             </span>
             <span
               className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
@@ -150,7 +166,7 @@ export const StreamerControlPanel: React.FC<StreamerControlPanelProps> = ({
               {isConnecting
                 ? 'Menghubungkan...'
                 : isConnected
-                ? '🟢 Terhubung Real-Time'
+                ? '🟢 Terhubung Webcast'
                 : 'Mode Siaga'}
             </span>
           </div>
@@ -162,14 +178,14 @@ export const StreamerControlPanel: React.FC<StreamerControlPanelProps> = ({
                 type="text"
                 value={tempTiktok}
                 onChange={(e) => setTempTiktok(e.target.value)}
-                placeholder="masukkan username tiktok (cth: youneedheave)"
+                placeholder="username tiktok live (cth: youneedheave)"
                 className="w-full bg-slate-950 border border-slate-700 rounded-lg pl-7 pr-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
               />
             </div>
             <button
               onClick={() => {
                 onSetTiktokUsername(tempTiktok);
-                onToggleConnect();
+                onToggleConnect(signApiKey);
               }}
               disabled={isConnecting}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow flex items-center gap-1.5 ${
@@ -186,10 +202,50 @@ export const StreamerControlPanel: React.FC<StreamerControlPanelProps> = ({
               ) : isConnected ? (
                 'Putuskan'
               ) : (
-                'Hubungkan Live'
+                'Connect Live'
               )}
             </button>
           </div>
+
+          {/* Advanced EulerStream Key & Options toggle */}
+          <div className="flex items-center justify-between text-[10px] pt-1">
+            <button
+              type="button"
+              onClick={() => setShowAdvancedConnector(!showAdvancedConnector)}
+              className="text-indigo-400 hover:text-indigo-300 flex items-center gap-1 font-medium"
+            >
+              <Key className="w-3 h-3" />
+              <span>{showAdvancedConnector ? 'Sembunyikan Pengaturan API Key' : 'Opsi EulerStream API Key (Opsional)'}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setTempTiktok('youneedheave');
+                onSetTiktokUsername('youneedheave');
+              }}
+              className="text-slate-400 hover:text-white underline font-semibold"
+            >
+              Set @youneedheave
+            </button>
+          </div>
+
+          {showAdvancedConnector && (
+            <div className="bg-black/50 p-2.5 rounded-lg border border-white/10 flex flex-col gap-1.5 text-xs">
+              <label className="text-[10px] font-bold text-slate-300">
+                EulerStream signApiKey (Opsional untuk kuota khusus):
+              </label>
+              <input
+                type="text"
+                value={signApiKey}
+                onChange={(e) => setSignApiKey(e.target.value)}
+                placeholder="Masukkan API Key EulerStream (jika ada)"
+                className="bg-slate-950 border border-slate-700 rounded p-1.5 text-xs text-white focus:outline-none"
+              />
+              <span className="text-[9px] text-slate-400">
+                * Default gratis tanpa API key sudah langsung berjalan via pool umum tiktok-live-connector.
+              </span>
+            </div>
+          )}
 
           {connectionNotice && (
             <div
@@ -203,25 +259,11 @@ export const StreamerControlPanel: React.FC<StreamerControlPanelProps> = ({
               <span>{connectionNotice}</span>
             </div>
           )}
-
-          <div className="flex items-center justify-between text-[10px] text-slate-400">
-            <span>* Otomatis membaca username Roblox dari setiap komentar live penonton.</span>
-            <button
-              type="button"
-              onClick={() => {
-                setTempTiktok('youneedheave');
-                onSetTiktokUsername('youneedheave');
-              }}
-              className="text-indigo-400 hover:text-indigo-300 font-semibold underline"
-            >
-              Set @youneedheave
-            </button>
-          </div>
         </div>
       </div>
 
       <div className="p-4 flex-1 flex flex-col gap-4 overflow-y-auto">
-        {/* 2. AUTO ROBLOX COMMENT INGESTION (REVISION 4) */}
+        {/* 2. AUTO ROBLOX COMMENT INGESTION */}
         <div className="bg-slate-950/70 p-3.5 rounded-xl border border-indigo-500/30 shadow">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-1.5 text-xs font-bold text-white">
@@ -229,7 +271,7 @@ export const StreamerControlPanel: React.FC<StreamerControlPanelProps> = ({
               <span>Input Komentar Live (Cek Akun & Langsung Bacakan)</span>
             </div>
             <span className="text-[10px] bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded-full font-medium">
-              Real-time Ingest
+              Webcast Parser
             </span>
           </div>
 
@@ -251,11 +293,10 @@ export const StreamerControlPanel: React.FC<StreamerControlPanelProps> = ({
               />
             </div>
 
-            {/* Live Detected Preview Pill */}
             {detectedFromInput && (
               <div className="flex items-center justify-between bg-emerald-950/50 border border-emerald-500/40 px-2.5 py-1 rounded-lg text-xs">
                 <span className="text-emerald-300 text-[11px] flex items-center gap-1">
-                  <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
+                  <CheckCircle className="w-3 h-3 text-emerald-400" />
                   Terdeteksi Roblox: <strong>@{detectedFromInput}</strong>
                 </span>
                 <span className="text-[10px] text-emerald-400 font-bold uppercase">
@@ -418,7 +459,7 @@ export const StreamerControlPanel: React.FC<StreamerControlPanelProps> = ({
                 </span>
               </div>
               <span className="text-xs font-black text-amber-200">Super VIP 10K</span>
-              <span className="text-[10px] text-slate-400">Rincian Item Lengkap</span>
+              <span className="text-[10px] text-slate-400">Pop-up Item Lengkap</span>
             </button>
           </div>
         </div>

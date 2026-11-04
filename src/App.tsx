@@ -229,24 +229,27 @@ export default function App() {
   );
 
   // Connect to TikTok Live room
-  const connectToTikTok = useCallback(async (targetUsername: string) => {
+  const connectToTikTok = useCallback(async (targetUsername: string, signApiKey?: string) => {
     const cleanUser = targetUsername.trim().replace(/^@/, '');
     if (!cleanUser) return;
     setIsConnecting(true);
-    setConnectionNotice(`Menghubungkan ke live @${cleanUser}...`);
+    setConnectionNotice(`Menghubungkan ke live @${cleanUser} via zerodytrash/TikTok-Live-Connector...`);
 
     try {
       const res = await fetch('/api/tiktok/connect', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: cleanUser }),
+        body: JSON.stringify({ username: cleanUser, signApiKey }),
       });
       const data = await res.json();
       setIsConnecting(false);
 
-      if (data.success && data.liveState?.isLive) {
+      if (data.success && data.liveState) {
         setIsConnected(true);
-        setConnectionNotice(`🟢 Terhubung ke Live @${cleanUser}! Siap review komentar penonton.`);
+        setConnectionNotice(
+          data.liveState.lastMessage ||
+          `🟢 Terhubung ke Live @${cleanUser} via zerodytrash/TikTok-Live-Connector!`
+        );
       } else {
         setIsConnected(true);
         setConnectionNotice(
@@ -417,11 +420,11 @@ export default function App() {
             isConnected={isConnected}
             isConnecting={isConnecting}
             connectionNotice={connectionNotice}
-            onToggleConnect={() => {
+            onToggleConnect={(key) => {
               if (isConnected) {
                 disconnectFromTikTok();
               } else {
-                connectToTikTok(tiktokUsername);
+                connectToTikTok(tiktokUsername, key);
               }
             }}
             queue={queue}

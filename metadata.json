@@ -1,0 +1,6 @@
+{
+  "name": "Roblox Live Review 3D - TikTok Streamer Studio",
+  "description": "Aplikasi live interaktif review akun Roblox otomatis untuk live streaming TikTok 9:16 dengan 3D avatar Tomato Dance, review suara TTS otomatis, rating bintang, dan sistem antrean Fast Track.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
